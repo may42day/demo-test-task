@@ -70,20 +70,29 @@ WSGI_APPLICATION = "app.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DJANGO_DB_NAME") or "documents_db",
-        "USER": os.getenv("DJANGO_DB_USER") or "user",
-        "PASSWORD": os.getenv("DJANGO_DB_PASSWORD") or "pass",
-        "HOST": os.getenv("DJANGO_DB_HOST") or "127.0.0.1",
-        "PORT": os.getenv("DJANGO_DB_PORT") or "5433",
-    },
-    "test": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "test_db.sqlite3",
-    },
-}
+IS_DOCKERIZED = os.environ.get('IS_DOCKERIZED', False)
+if IS_DOCKERIZED:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DJANGO_DB_NAME") or "documents_db",
+            "USER": os.getenv("DJANGO_DB_USER") or "user",
+            "PASSWORD": os.getenv("DJANGO_DB_PASSWORD") or "pass",
+            "HOST": os.getenv("DJANGO_DB_HOST") or "db",
+            "PORT": os.getenv("DJANGO_DB_PORT") or "5432",
+        },
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DJANGO_DB_NAME") or "documents_db",
+            "USER": os.getenv("DJANGO_DB_USER") or "user",
+            "PASSWORD": os.getenv("DJANGO_DB_PASSWORD") or "pass",
+            "HOST": "localhost",
+            "PORT": "5433",
+        },
+    }
 
 
 
