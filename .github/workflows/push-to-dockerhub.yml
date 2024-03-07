@@ -24,7 +24,9 @@ jobs:
         pipenv install --system
     
     - name: Run Tests
-      run: pytest
+      run: |
+        cd src
+        pytest
 
   deploy:
     runs-on: ubuntu-latest
