@@ -13,6 +13,7 @@ python-dotenv = "*"
 pytest = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
+pytest-django = "*"
 
 [dev-packages]
 
