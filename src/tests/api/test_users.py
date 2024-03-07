@@ -10,6 +10,7 @@ from app.settings import SECRET_KEY
 def auth_url() -> str:
     return "/api/v1/users/token/"
 
+
 @pytest.fixture
 def user_with_pass(user):
     user.set_password("PASSWORD")
@@ -33,7 +34,6 @@ class TestAuthAPI:
 
         assert payload["user_id"] == user_with_pass.pk
 
-
     def test_auth_refresh_token(self, api_client, user_with_pass, auth_url):
         data = {"username": user_with_pass.username, "password": "PASSWORD"}
         response = api_client.post(auth_url, data=data, format="json")
@@ -49,7 +49,7 @@ class TestAuthAPI:
 @pytest.mark.django_db
 class TestUserCreate:
     def test_user_create_ok(self, api_client):
-        
+
         data = {
             "username": "new_username",
             "password": "new_password",
@@ -57,13 +57,13 @@ class TestUserCreate:
         }
         response = api_client.post(f"/api/v1/users/register/", data=data)
         assert response.status_code == status.HTTP_201_CREATED
-        assert User.objects.filter(pk=response.data['id']).exists()
+        assert User.objects.filter(pk=response.data["id"]).exists()
 
     def test_user_create_not_ok(self, api_client):
-        
+
         data = {
-            "username": "new_username",
-            "password": "new_password",
+            "username": "username",
+            "password": "password",
         }
         response = api_client.post(f"/api/v1/users/register/", data=data)
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_400_BAD_REQUEST

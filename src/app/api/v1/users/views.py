@@ -1,6 +1,6 @@
-from rest_framework import generics
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
 from drf_yasg.utils import swagger_auto_schema
@@ -23,10 +23,21 @@ class RegisterUserView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        data = self.request.data
-        user = User(**data)
-        user.set_password(data["password"])
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User(
+            username=serializer.validated_data["username"],
+            email=serializer.validated_data["email"],
+        )
+        user.set_password(serializer.initial_data["password"])
         user.save()
-        serializer.instance = user
-        serializer.save()
+
+        response_serializer = UserSerializer(
+            user, context=self.get_serializer_context()
+        )
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            response_serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )

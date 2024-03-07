@@ -9,9 +9,11 @@ from app.api.v1.document.serializers import (
     DocumentCreateUpdateSerializer,
     DocumentSerializer,
 )
+from app.enum import DocumentStatus
 from app.models import Document
 from app.permissions import IsAuthorOrReadOnly
 from app.filters import DocumentFilter
+
 
 class DocumentCreateAPIView(generics.CreateAPIView):
     queryset = Document.objects.all()
@@ -67,7 +69,7 @@ class DocumentDestroyView(generics.DestroyAPIView):
         return self.destroy(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
-        instance.status = Document.ARCHIVED
+        instance.status = DocumentStatus.ARCHIVED.name
         instance.save()
 
 
@@ -81,14 +83,17 @@ class DocumentDetailUpdateView(generics.RetrieveUpdateAPIView):
         new_status = request.data.get("status")
 
         if new_status and instance.status != new_status:
-            if instance.status == Document.PUBLISHED and new_status == Document.DRAFT:
+            if (
+                instance.status == DocumentStatus.PUBLISHED.name
+                and new_status == DocumentStatus.DRAFT.name
+            ):
                 return Response(
                     {
                         "error": 'You cannot change the status from "Published" to "Draft".'
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif instance.status == Document.ARCHIVED:
+            elif instance.status == DocumentStatus.ARCHIVED.name:
                 return Response(
                     {"error": "You cannot change the status of archived document."},
                     status=status.HTTP_400_BAD_REQUEST,
