@@ -7,7 +7,6 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class RegisterUserView(generics.CreateAPIView):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 

@@ -16,7 +16,6 @@ from app.filters import DocumentFilter
 
 
 class DocumentCreateAPIView(generics.CreateAPIView):
-    queryset = Document.objects.all()
     serializer_class = DocumentCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
 
