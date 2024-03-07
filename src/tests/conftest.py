@@ -1,20 +1,21 @@
+from django.contrib.auth.models import User
+from django_dynamic_fixture import G
 import pytest
-from django.test import Client
 
+from app.models import Document
 
-# @pytest.mark.django_db
-# @pytest.fixture
-# def client():
-#     """Creating Django client for API requests"""
-#     return Client()
+@pytest.mark.django_db
+@pytest.fixture
+def api_client():
+    from rest_framework.test import APIClient
+    return APIClient()
 
+@pytest.fixture
+@pytest.mark.django_db
+def user():
+    return G(User)
 
-# @pytest.fixture(scope="session")
-# def django_db_setup():
-#     from django.conf import settings
-
-#     settings.DATABASES["default"] = {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": ":memory:",
-#         "ATOMIC_REQUESTS": True,
-#     }
+@pytest.fixture
+@pytest.mark.django_db
+def documents():
+    return [G(Document) for _ in range(3)]
