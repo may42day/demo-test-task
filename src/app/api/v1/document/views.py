@@ -4,6 +4,7 @@ from rest_framework import generics
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 
 from app.api.v1.document.serializers import (
     DocumentCreateUpdateSerializer,
@@ -15,9 +16,21 @@ from app.permissions import IsAuthorOrReadOnly
 from app.filters import DocumentFilter
 
 
-class DocumentCreateAPIView(generics.CreateAPIView):
-    serializer_class = DocumentCreateUpdateSerializer
-    permission_classes = [IsAuthenticated]
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+    permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = DocumentFilter
+    serializer_class_map = {
+        "create": {
+            "request": DocumentCreateUpdateSerializer,
+            "response": DocumentSerializer,
+        },
+        "list": {
+            "response": DocumentSerializer,
+        },
+    }
 
     @swagger_auto_schema(
         tags=["document"],
@@ -28,33 +41,19 @@ class DocumentCreateAPIView(generics.CreateAPIView):
             status.HTTP_400_BAD_REQUEST: "Invalid data",
         },
     )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-
-class DocumentListAPIView(generics.ListAPIView):
-    queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = DocumentFilter
 
     @swagger_auto_schema(
         tags=["document"],
         operation_summary="List documents",
         responses={status.HTTP_200_OK: DocumentSerializer(many=True)},
     )
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-
-class DocumentDestroyView(generics.DestroyAPIView):
-    queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(
         tags=["document"],

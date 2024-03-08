@@ -31,7 +31,7 @@ def test_document_detail_ok(api_client, user):
 @pytest.mark.django_db
 def test_documents_list_ok(api_client, user, documents):
     api_client.force_authenticate(user=user)
-    response = api_client.get(f"/api/v1/document/list")
+    response = api_client.get(f"/api/v1/document/list/")
     assert response.status_code == status.HTTP_200_OK
     assert documents[0].id in [doc["id"] for doc in response.data]
 
